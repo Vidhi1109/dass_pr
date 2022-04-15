@@ -1,0 +1,23 @@
+{
+  "name": "ethereum-supply-chain-dapp-main",
+  "version": "1.0.0",
+  "description": "## Introduction This repository contains a Dapp as a demo concept on how you can automate and manage payments and the full life cycle of products, in a transparent way, on a Ehtereum blockchain, using smart contracts.",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.3",
+    "mongodb": "^4.4.1",
+    "mongoose": "^6.2.9",
+    "react-script-tag": "^1.1.2",
+    "web3": "^1.7.1"
+  }
+}
