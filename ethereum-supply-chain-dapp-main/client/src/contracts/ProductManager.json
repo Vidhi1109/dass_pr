@@ -6921,12 +6921,12 @@
         }
       },
       "links": {},
-      "address": "0x2e6bf56774efB8bB3DF85983B4D3637f3f00De69",
-      "transactionHash": "0xc56d3c6ae08878fb3e39a8a9aede6b3e8b620e62d15d1adc37b71042f4fe53d9"
+      "address": "0xa7C97ED505902D743acf649E153162b8116BA57B",
+      "transactionHash": "0xd2ef5971a81166a54dfab9a97dd0bd96118cec747dd2804689756e211edca9c9"
     }
   },
   "schemaVersion": "3.4.7",
-  "updatedAt": "2022-04-15T08:32:08.526Z",
+  "updatedAt": "2022-04-15T22:05:04.955Z",
   "networkType": "ethereum",
   "devdoc": {
     "details": "Contract for managing creation of new products and handling of the events.   ",

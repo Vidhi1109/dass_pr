@@ -85,9 +85,9 @@ signin_man()
             window.location.href = "/distributor";
 
           } 
-          else if (response.data.role == "R")
+          else if (response.data.role == "U")
           {
-
+            window.location.href = "/user";
           }
           else 
           {
@@ -105,7 +105,7 @@ signin_man()
     var account = web3.eth.accounts.create();
     this.state.address = account.address;
     this.state.private_key = account.privateKey; 
-    if (this.state.username == "" || this.state.email == "" || this.state.password=="" || (this.menu2.value != "D" && this.menu2.value != "R"))   
+    if (this.state.username == "" || this.state.email == "" || this.state.password=="" || (this.menu2.value != "D" && this.menu2.value != "U"))   
     {
         alert("Fields are empty!");
         return;
@@ -144,7 +144,7 @@ signin_man()
                     <input type="text" class="form-control" placeholder="Username" onChange={ this.change_username.bind(this)}/>
                     <option class="hidden" >Please select your Category (Ditributor/User)</option>
                     <option value="D">Distributor</option>
-                    <option value="R">User</option>
+                    <option value="U">User</option>
                 </select>
             </div>    
             <br></br>         

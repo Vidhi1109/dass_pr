@@ -23,6 +23,7 @@ import Login from "./components/Login2"
 import "./App.css";
 import Signup from "./components/signup"
 import Distributor from "./components/distributor"
+import User from "./components/users"
 
 class App extends Component {
 
@@ -224,6 +225,7 @@ class App extends Component {
       <Routes>
           <Route path="/" element={<Signup />} />
             <Route path="manufacturer" element={<Login  Auth={this.Auth} />} />
+            <Route path="user" element={<User  Auth={this.Auth} />} />
             <Route path="distributor" element={<Distributor  Auth={this.Auth} />} />
       </Routes>
     </BrowserRouter>  

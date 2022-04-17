@@ -55,122 +55,206 @@ export default class Login extends React.Component {
 {
   let profile = localStorage.getItem('DASS_USERID');
   let userobj = JSON.parse(profile);
-  let acc_address = userobj.data.acc_address; 
-  // alert(typeofhash  + " " + JSON.stringify(product));
+  let acc_address = userobj.data.acc_address;
+
   var response;
-  // alert(hash);
-  this.props.Auth.methods.test_track().call().then((result) => {
-    alert(result);
-  })
+
   await this.props.Auth.methods.transferOwnership(acc_address , address  , product.hash , quantity).call().then((result) => {
     response = result;
     })
-    if (response != 696969 && response != 696970)
+    if (response != 696969 )
     {
-      let result = await this.props.Auth.methods.manufacturerCreatesProduct2(acc_address ,address , response, '0x7Aa8EbC8A7DDaB5C9e0F0161b6538A57B8946d3E', address, product.desc , quantity , product.price , product.hash , product.no_of_transfers+1).send({ from: acc_address , gasLimit: "2100000"});
+      var response2 = 0;
+      await this.props.Auth.methods.check_existence(address, product.hash).call().then((result) => {
+        response2 = result;
+      })
+      if (response2 == 696969)
+      {
+        var timestamp;
+        var string = product.owners_list;
+        var owners_list_array = string.split('\n');
+        for (let count = 0 ; count<owners_list_array.length ; count++)
+        {
+          owners_list_array[count] = owners_list_array[count].split('#');
+          owners_list_array[count][1] = owners_list_array[count][1].split('|');
+        }
+        var quant = 0;
+        let list=""
+        let at_array = [];
+        for (let count =0 ; count < owners_list_array.length ; count++)
+        {
+          if (quant + parseInt(owners_list_array[count]) < quantity)
+          {
+            quant = quant+parseInt(owners_list_array[count][0]);
+            list += owners_list_array[count][0] + "#";
+            for (let count2 = 0 ; count2 < owners_list_array[count][1].length ; count2++ )
+            {
+              list += owners_list_array[count][1][count2] + "|";
+            }
+            timestamp = Date.now();
+            list +=  address + "$" + timestamp;
+            at_array.push(address + "$" + timestamp);
+            owners_list_array[count][0] = 0;
+          }
+          else // quant + parseInt(owners_list_array[count]) > quantity 
+          { 
+            owners_list_array[count][0] = parseInt(owners_list_array[count][0]) - (quantity - quant);
+            list += (quantity - quant) + "#"  ;  
+            for (let count2 = 0 ; count2 < owners_list_array[count][1].length ; count2++ )
+            {
+              list += owners_list_array[count][1][count2] + "|";
+            }       
+            timestamp = Date.now()
+            list += address + "$" + timestamp ;   
+            at_array.push(address + "$" + timestamp);       
+            quant = quantity
+            break;          
+          }
+          if(count != owners_list_array.length-1)
+          {
+            list += "\n";
+          }
+        }
+        alert(list);
+
+        let prev_list = "";
+        for (let count = 0 ; count < owners_list_array.length ; count++)
+        {
+          prev_list += owners_list_array[count][0] + "#" ;
+          for (let count2 = 0 ; count2 < owners_list_array[count][1].length ; count2++ )
+          {
+            if(count2 == owners_list_array[count][1].length-1)
+            {
+              prev_list += owners_list_array[count][1][count2] ;
+              break;
+            }
+            prev_list += owners_list_array[count][1][count2] + "|";
+          }
+          if (count != owners_list_array.length - 1)
+          {
+            prev_list += "\n";
+          }
+          
+        }        
+        let owners_list = "";
+        owners_list = list;
+        alert("Owner's List\n" + owners_list + "\n\nManufacturer list\n" + prev_list);
+
+        let result = await this.props.Auth.methods.manufacturerCreatesProduct2(acc_address,address , response, '0x7Aa8EbC8A7DDaB5C9e0F0161b6538A57B8946d3E', address, product.desc , quantity , product.price , product.hash , product.no_of_transfers+1 , owners_list , prev_list).send({ from: acc_address , gasLimit: "2100000"});
+        let response5 = localStorage.getItem('MAP');
+        response5 = JSON.parse(response5);
+        for (let p = 0 ; p<at_array.length ; p++)
+        {
+          response5[at_array[p]] = result.transactionHash;
+        }
+        localStorage.setItem('MAP', JSON.stringify(response5));
+      }
+      else
+      {
+        var response3 = 0;
+        var timestamp;
+        await this.props.Auth.methods.check_existence(acc_address, product.hash).call().then((result) => {
+          response3 = result;
+        }) 
+        var string = product.owners_list;
+        var owners_list_array = string.split('\n');
+        let at_array = [];
+        for (let count = 0 ; count<owners_list_array.length ; count++)
+        {
+          owners_list_array[count] = owners_list_array[count].split('#');
+          owners_list_array[count][1] = owners_list_array[count][1].split('|');
+        }
+        var quant = 0;
+        let list=""
+        for (let count =0 ; count < owners_list_array.length ; count++)
+        {
+          if (quant + parseInt(owners_list_array[count]) < quantity)
+          {
+            quant = quant+parseInt(owners_list_array[count][0]);
+            list += owners_list_array[count][0] + "#";
+            for (let count2 = 0 ; count2 < owners_list_array[count][1].length ; count2++ )
+            {
+              list += owners_list_array[count][1][count2] + "|";
+            }
+            timestamp = Date.now();
+            list +=  address + "$" + timestamp ;
+            at_array.push( address + "$" + timestamp);
+            owners_list_array[count][0] = 0;
+          }
+          else // quant + parseInt(owners_list_array[count]) > quantity 
+          { 
+            owners_list_array[count][0] = parseInt(owners_list_array[count][0]) - (quantity - quant);
+            list += (quantity - quant) + "#"  ;  
+            for (let count2 = 0 ; count2 < owners_list_array[count][1].length ; count2++ )
+            {
+              list += owners_list_array[count][1][count2] + "|";
+            }       
+            list += address + "$" + Date.now() ;    
+            at_array.push( address + "$" + timestamp);      
+            quant = quantity
+            break;          
+          }
+          if(count != owners_list_array.length-1)
+          {
+            list += "\n";
+          }
+        }
+        let prev_list = "";
+        for (let count = 0 ; count < owners_list_array.length ; count++)
+        {
+          prev_list += owners_list_array[count][0] + "#" ;
+          for (let count2 = 0 ; count2 < owners_list_array[count][1].length ; count2++ )
+          {
+            if(count2 == owners_list_array[count][1].length-1)
+            {
+              prev_list += owners_list_array[count][1][count2] ;
+              break;
+            }
+            prev_list += owners_list_array[count][1][count2] + "|";
+          }
+          if (count != owners_list_array.length - 1)
+          {
+            prev_list += "\n";
+          }
+        }  
+        let owners_list = "";
+        await this.props.Auth.methods.return_owners(address, product.hash).call().then((result) => {
+          owners_list = result;
+        })  
+        owners_list += "\n" + list;       
+        alert("Owner's List\n" + owners_list + "\n\nManufacturer list\n" + prev_list);
+        await this.props.Auth.methods.transfer_when_available(acc_address,address, response3, response2 , quantity, owners_list , prev_list).send({ from: acc_address, gasLimit: "210000" }).then((result) => {
+          let response5 = localStorage.getItem('MAP');
+          response5 = JSON.parse(response5);
+          for (let p = 0 ; p<at_array.length ; p++)
+          {
+            response5[at_array[p]] = result.transactionHash;
+          }
+          localStorage.setItem('MAP', JSON.stringify(response5));       
+        })      
+      }
     }
-  // await this.props.Auth.methods.transferOwnership('0x7Aa8EbC8A7DDaB5C9e0F0161b6538A57B8946d3E' , '0x39102bc9f108d72818ecce83bb5386d68d2cc359'  , 17597 , 1).send({from: '0x7Aa8EbC8A7DDaB5C9e0F0161b6538A57B8946d3E' , gasLimit: '210000'}).then((result) => {
-  // alert("hieee" + JSON.stringify(result));
-  // })
+    else
+    {
+      alert("Product Limit Exceeded");
+    }
 }
   createproduct = async() =>
   {
-      
-    //   alert(this.state.desc);
-    // await this.props.Auth.methods.product_num().call().then((result) => {
-    //     alert(result);
-    //   });
-    // await this.props.Auth.methods.all_products(0).call().then((result)=>{
-    //     alert(result);
-    // })  
-    //let result = await this.props.Auth.methods.manufacturerCreatesProduct('0x7aa8ebc8a7ddab5c9e0f0161b6538a57b8946d3e', this.state.desc , this.state.quant , this.state.cost).send({ from: '0x7aa8ebc8a7ddab5c9e0f0161b6538a57b8946d3e'});
     var randomNumber = Math.floor((Math.random() * (100000)) + 1);
-    let result = await this.props.Auth.methods.manufacturerCreatesProduct('0x7Aa8EbC8A7DDaB5C9e0F0161b6538A57B8946d3E' , this.state.desc, this.state.quant , this.state.cost , randomNumber).send({ from: '0x7Aa8EbC8A7DDaB5C9e0F0161b6538A57B8946d3E' , gasLimit: "2100000"});
+    var address = "";
+    address = this.state.quant + "#0x7Aa8EbC8A7DDaB5C9e0F0161b6538A57B8946d3E";
+    let result = await this.props.Auth.methods.manufacturerCreatesProduct('0x7Aa8EbC8A7DDaB5C9e0F0161b6538A57B8946d3E' , this.state.desc, address , this.state.quant , this.state.cost , randomNumber).send({ from: '0x7Aa8EbC8A7DDaB5C9e0F0161b6538A57B8946d3E' , gasLimit: "2100000"});
     alert("Product Created");
-    this.forceUpdate();
-    // result = await this.props.Auth.methods.ownerToDistributor('0x7Aa8EbC8A7DDaB5C9e0F0161b6538A57B8946d3E' , '0x1fe8f0b72d34380ae964821fa55a12d2293b916b' , [0] , this.state.cost).send({ from: '0x7Aa8EbC8A7DDaB5C9e0F0161b6538A57B8946d3E' , gasLimit: "2100000"});
-    // alert("jbk");    
-    // await this.props.Auth.methods.giveDistributor('0','0').call().then((result)=>{
-    //    alert(result); 
-    // })
-    /*
-    this.setState({
-        showAlert: true,
-        paymentAddress: result.events.ProductStateChanged.returnValues.productPaymentAddress
-      });   */ 
-      /* 
-      await this.props.Auth.methods.product_num().call().then((result) => {
-        alert(result);
-      });  
-       var a = 0
-      var b = 0
-      await this.props.Auth.methods.giveDistributor(a,b).call().then((result) => {
-        alert(result);
-      }); */          
+    this.forceUpdate();     
   }
-  componentDidMount = async () => {
+  componentDidMount = async () => 
+  {
        await this.getAllProductsFromContract();
-
-      // await this.getAllTransactions();   
-      // // Setting update interval every 5 seconds
       this.interval = setInterval(() => this.getAllProductsFromContract(), 5000);
-
   };
-  getAllProductsFromContract = async() =>{
-
-    // var product_num;
-    // var products = [];
-    // var distributors = [];
-    //  await this.props.Auth.methods.product_num().call().then((result) => {
-    //   product_num = result;
-    //   });  
-    // for (let i=0 ; i<product_num ; i++)
-    // {
-        
-    //     let productdata = {}
-    // await this.props.Auth.methods.all_products(i).call().then((result)=>{
-    //     var status;
-    //     if (result._owner== result._manufacturer)
-    //     {
-    //         status = "NOT SOLD"
-    //     }
-    //     else
-    //     {
-    //         status = "SOLD"   
-
-    //     }
-    //     productdata = {
-    //         manufacturer: result._manufacturer,
-    //         distributor: result.distributors,
-    //         retailer: result._retailer,
-    //         owner: result._owner,
-    //         desc:  result._desc,
-    //         pr: result.pr,
-    //         price: result.price,
-    //         distributors: result.no_of_distributor,   
-    //         status: status       
-    //     }
-
-    //     products.push(productdata);
-        
-    // }) 
-
-    // var distributorr=[]
-    // let distributor = ""
-    // for(let j=0 ; j<products[i].distributors ; j++)
-    // {
- 
-    //     await this.props.Auth.methods.giveDistributor(i,j).call().then((result) => {
- 
-    //         distributor += result;
-
-    //       });     
-    // }
-    // distributors.push(distributorr);
-    // } 
-    
-    // this.setState({products_array : products})
-    // this.setState({distributors_array : distributors})  
+  getAllProductsFromContract = async() =>
+  { 
     let profile = localStorage.getItem('DASS_USERID');
     let userobj = JSON.parse(profile);
     let acc_address = userobj.data.acc_address;  
@@ -184,7 +268,7 @@ export default class Login extends React.Component {
       let productdata = {};
       let owners = "";
       var result_final;
-      await this.props.Auth.methods.all_products_track( acc_address , i).call().then((result) => {
+      await this.props.Auth.methods.all_products_track(acc_address , i).call().then((result) => {
         result_final = result;
       })
       for (let j=0 ; j<result_final.no_of_transfers ;j++)
@@ -203,7 +287,8 @@ export default class Login extends React.Component {
         quantity: result_final.quantity,
         price:  result_final.price,
         no_of_transfers: result_final.no_of_transfers,
-        display: false
+        display: false,
+        owners_list: result_final.owners_list
       }
       products.push(productdata);
     }
@@ -211,9 +296,7 @@ export default class Login extends React.Component {
   }
   render() {
     return (
-      
 <div>
-
       <Container style={{ 'marginTop': '2%', 'width': '80%' }}>
       <Paper elevation={3} >
       <SimpleProductTable rows={this.state.products_array} title={'My'} Auth={this.props.Auth} transferOwnership={this.transferOwnership}
@@ -226,4 +309,3 @@ export default class Login extends React.Component {
     );
   }
 }
-
